@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { useTranslations, dateLocales, type Lang } from '../../i18n/translations';
+
+const lang: Lang = 'zh';
+const t = useTranslations(lang);
+
+const allPosts = (await getCollection('blog', ({ data }) => data.lang === 'zh'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const years = new Map<number, typeof allPosts>();
+for (const post of allPosts) {
+  const year = post.data.date.getFullYear();
+  if (!years.has(year)) years.set(year, []);
+  years.get(year)!.push(post);
+}
+---
+
+<BaseLayout title={t('posts.title')} lang={lang}>
+  <h1 class="page-title">{t('posts.title')}</h1>
+  <div class="posts-by-year">
+    {[...years.entries()].map(([year, posts]) => (
+      <section class="year-group">
+        <h2 class="year-label">{year}</h2>
+        <ul class="post-list">
+          {posts.map((post) => {
+            const dateStr = post.data.date.toLocaleDateString(dateLocales[lang], {
+              month: 'short',
+              day: 'numeric',
+            });
+            return (
+              <li class="post-item">
+                <a href={`/blog/${post.id}`}>
+                  <span class="post-item-title">{post.data.title}</span>
+                  <span class="post-item-date">{dateStr}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 2.5rem;
+  }
+
+  .year-group {
+    margin-bottom: 2.5rem;
+  }
+
+  .year-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .post-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-item a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.75rem 0;
+    gap: 1rem;
+  }
+
+  .post-item-title {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .post-item-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+</style>

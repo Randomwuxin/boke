@@ -1,0 +1,123 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { useTranslations, dateLocales, type Lang } from '../../i18n/translations';
+
+const lang: Lang = 'en';
+const t = useTranslations(lang);
+
+const posts = (await getCollection('blog', ({ data }) => data.lang === 'en'))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 10);
+---
+
+<BaseLayout title="Home" lang={lang}>
+  <section class="hero">
+    <h1 class="hero-greeting">{t('hero.greeting')}</h1>
+    <p class="hero-desc">{t('hero.desc')}</p>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">{t('section.recent')}</h2>
+    <ul class="post-list">
+      {posts.map((post) => {
+        const dateStr = post.data.date.toLocaleDateString(dateLocales[lang], {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+        return (
+          <li class="post-item">
+            <a href={`/en/blog/${post.id.replace('en/', '')}`}>
+              <span class="post-item-title">{post.data.title}</span>
+              <span class="post-item-date">{dateStr}</span>
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+    <a href="/en/blog" class="more-link">{t('link.allPosts')}</a>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 3rem 0 4rem;
+  }
+
+  .hero-greeting {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+
+  .hero-desc {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .post-item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-item a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.85rem 0;
+    gap: 1rem;
+  }
+
+  .post-item-title {
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+
+  .post-item-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .more-link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  @media (max-width: 640px) {
+    .hero {
+      padding: 2rem 0 3rem;
+    }
+
+    .hero-greeting {
+      font-size: 2rem;
+    }
+
+    .post-item a {
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+  }
+</style>

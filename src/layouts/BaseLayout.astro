@@ -1,0 +1,138 @@
+---
+import '../styles/global.css';
+import { type Lang, useTranslations, languages, dateLocales } from '../i18n/translations';
+import { getAlternateUrl, getLocalePath } from '../i18n/utils';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+}
+
+const { title, description, lang } = Astro.props;
+const t = useTranslations(lang);
+const desc = description ?? (lang === 'zh' ? '程序员的日常' : "A developer's journal");
+const altLang = lang === 'zh' ? 'en' : 'zh';
+const altUrl = getAlternateUrl(Astro.url);
+const htmlLang = dateLocales[lang];
+---
+
+<!doctype html>
+<html lang={htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={desc} />
+    <link rel="alternate" hreflang={altLang} href={altUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="page">
+      <nav class="nav">
+        <a href={getLocalePath('/', lang)} class="nav-logo">~</a>
+        <div class="nav-right">
+          <div class="nav-links">
+            <a href={getLocalePath('/', lang)}>{t('nav.index')}</a>
+            <a href={getLocalePath('/blog', lang)}>{t('nav.posts')}</a>
+          </div>
+          <a href={altUrl} class="lang-switch">{languages[altLang]}</a>
+        </div>
+      </nav>
+
+      <main class="main">
+        <slot />
+      </main>
+
+      <footer class="footer">
+        <span>&copy; {new Date().getFullYear()}</span>
+      </footer>
+    </div>
+  </body>
+</html>
+
+<style>
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2.5rem 0 1.5rem;
+  }
+
+  .nav-logo {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text);
+  }
+
+  .nav-logo:hover {
+    opacity: 0.6;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.75rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .nav-links a {
+    color: var(--text-dim);
+  }
+
+  .lang-switch {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    padding: 0.2em 0.6em;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .lang-switch:hover {
+    border-color: var(--text-dim);
+    color: var(--text);
+    opacity: 1;
+  }
+
+  .main {
+    flex: 1;
+    padding: 1rem 0 3rem;
+  }
+
+  .footer {
+    padding: 2rem 0;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 640px) {
+    .nav {
+      padding: 1.5rem 0 1rem;
+    }
+  }
+</style>
