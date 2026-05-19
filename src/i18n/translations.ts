@@ -10,7 +10,7 @@ const translations = {
     'nav.index': '首页',
     'nav.posts': '文章',
     'hero.greeting': '你好。',
-    'hero.desc': '程序员的日常 — 代码、思考、以及之间的一切。',
+    'hero.desc': 'Randomwuxin的日常 — 代码、思考、以及之间的一切。',
     'section.recent': '最新',
     'link.allPosts': '全部文章 →',
     'posts.title': '文章',
